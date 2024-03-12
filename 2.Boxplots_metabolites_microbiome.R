@@ -1,5 +1,5 @@
 # Read the SE object containing all the metabolites from Liver/Serum/Fecal matrices and the microbiome data.
-# Generate pdf file containing the Log ion counts for all metabolites from different matrices and another pdf file containing Log abundance of microbiomes.
+# Generate pdf file containing the Log ion counts for all metabolites and Log abundance for microbial species.
 
 library(ggpubr)
 library(rstatix)

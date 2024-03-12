@@ -1,19 +1,13 @@
-# Purpose: To use the maplet pipeline to check if there is a correlation between serum, liver, and fecal metabolites 
+# Purpose: To read and process the metabolomics and microbiome data using the maplet pipeline 
 # Date: 12-June-2022
 # Source of Data : Data received from Dr. David Montrose (Stony Brook university) on 20-March-2022
 # Data Description: 17 mice models were fed either a controlled diet (5 mice), 50% reduced protein diet (6 mice), or 50% reduced 
 # non-essential amino acid (6 mice) for two weeks. 16s sequencing was performed on fecal samples and metabolomics data performed on feces, liver, and serum.  
-# Author: RKA
+# Authors: RKA, NS, KS
 
 rm(list=ls())
 library (usethis)
 library (devtools)
-#devtools::install_github(repo="krumsieklab/maplet@v1.1.2", subdir="maplet")
-#install.packages("matrixStats")
-#install.packages("MatrixGenerics")
-#install.packages("SummarizedExperiment")
-#install.packages("magrittr")
-#install.packages("DT")
 library(matrixStats)
 library (MatrixGenerics)
 library(SummarizedExperiment)
@@ -30,8 +24,8 @@ print (file_data )
 file_data2 <-  "Merged_Data_2.xlsx"
 print (file_data2 )
 
-
-# A) Loading the data: Fecal 
+### Data loading ...
+# 1) Loading the data: Fecal 
 D_Fecal<- 
   mt_load_xls(file=file_data, sheet="Metabolite_Fecal", samples_in_row=F, id_col="compound") %>%
   # load metabolite (rowData) annotations
@@ -44,7 +38,7 @@ D_Fecal<-
   mt_reporting_tic() %>%
   {.}
 
-# A) Loading the data: Serum 
+# 2) Loading the data: Serum 
 D_Serum<- 
   mt_load_xls(file=file_data, sheet="Metabolite_Serum", samples_in_row=F, id_col="compound") %>%
   # load metabolite (rowData) annotations
@@ -57,7 +51,7 @@ D_Serum<-
   mt_reporting_tic() %>%
   {.}
 
-# A) Loading the data: Liver
+# 3) Loading the data: Liver
 D_Liver<- 
   mt_load_xls(file=file_data, sheet="Metabolite_Liver", samples_in_row=F, id_col="compound") %>%
   # load metabolite (rowData) annotations
@@ -70,7 +64,7 @@ D_Liver<-
   mt_reporting_tic() %>%
   {.}
 
-# A) Loading the data: Microbiome
+# 4) Loading the data: Microbiome
 D_Microbiome <-
   mt_load_xls(file=file_data2, sheet="Species_Count", samples_in_row=F, id_col="species") %>%
   # load (rowData) annotations
@@ -85,7 +79,7 @@ D_Microbiome <-
 
 # Part 1: Analysis of Fecal Data set 
 
-# Part 1: MISSINGNESS ANALYSIS 
+# Part 1.1: MISSINGNESS ANALYSIS 
 
 D_Fecal <- D_Fecal %>%
   mt_pre_zero_to_na() %>%
@@ -103,7 +97,7 @@ D_Fecal <- D_Fecal %>%
   {.}
 
 
-# Part 1: FILTERING MISSING VALUES
+# Part 1.2: FILTERING MISSING VALUES
 
 D_Fecal <- D_Fecal %>%
   mt_modify_filter_samples(filter = !is.na(Group)) %>%
@@ -114,7 +108,7 @@ D_Fecal <- D_Fecal %>%
   {.}
 
 
-# Part 1: PREPROCESSING: NORMALIZATION
+# Part 1.3: PREPROCESSING: NORMALIZATION
 
 D_Fecal <- D_Fecal %>%
   # heading for html file
@@ -140,7 +134,7 @@ D_Fecal <- D_Fecal %>%
   
   {.}
 
-# Part 1: GLOBAL STATISTICS 
+# Part 1.4: GLOBAL STATISTICS 
 
 assay(D_Fecal)[ which(is.na(assay(D_Fecal)), arr.ind = TRUE) ] = 0
 
@@ -153,14 +147,7 @@ D_Fecal <- D_Fecal %>%
   
   {.}
 
-# part 1: GGM model 
 
-# D_Fecal <- D_Fecal %>%
-#   mt_stats_cormat_genenet(stat_name="pcor") %>%
-#   mt_plots_net(stat_name = "pcor") %>%
-#   {.}
-
-# part 1: STATISTICAL ANALYSIS, OUTCOME: Group, METHOD: LINEAR REGRESSION (t-test) 
 
 D_Fecal <- D_Fecal %>%
   # heading for html file
@@ -195,7 +182,7 @@ D_Fecal <- D_Fecal %>%
 
 # Part 2: Analysis of Serum Data set 
 
-# Part 2: MISSINGNESS ANALYSIS 
+# Part 2.1: MISSINGNESS ANALYSIS 
 
 D_Serum <- D_Serum %>%
   mt_pre_zero_to_na() %>%
@@ -213,7 +200,7 @@ D_Serum <- D_Serum %>%
   {.}
 
 
-# Part 2: FILTERING MISSING VALUES 
+# Part 2.2: FILTERING MISSING VALUES 
 
 D_Serum <- D_Serum %>%
   mt_modify_filter_samples(filter = !is.na(Group)) %>%
@@ -224,7 +211,7 @@ D_Serum <- D_Serum %>%
   {.}
 
 
-# Part 2: PREPROCESSING: NORMALIZATION 
+# Part 2.3: PREPROCESSING: NORMALIZATION 
 
 D_Serum <- D_Serum %>%
   # heading for html file
@@ -251,7 +238,7 @@ D_Serum <- D_Serum %>%
   {.}
 
 
-# Part 2: GLOBAL STATISTICS 
+# Part 2.4: GLOBAL STATISTICS 
 
 assay(D_Serum)[ which(is.na(assay(D_Serum)), arr.ind = TRUE) ] = 0
 
@@ -263,15 +250,6 @@ D_Serum <- D_Serum %>%
   mt_plots_pca(scale_data = T, title = "Scaled PCA - Group", color= Group, exp_var_plot=T, size=2.5, ggadd= theme(panel.background = element_rect(fill = "white", colour = "grey50"))) %>%
   {.}
 
-# Part 2: GGM model 
-
-# D_Serum <- D_Serum %>%
-#   mt_stats_cormat_genenet(stat_name="pcor") %>%
-#   mt_plots_net(stat_name = "pcor") %>%
-#   #mt_plots_net(stat_name = "pcor", cor_filter = p.adj < 0.5, html_outfile="Network.html", height=800) %>%
-#   {.}
-
-# Part 2: STATISTICAL ANALYSIS, OUTCOME: Group, METHOD: LINEAR REGRESSION (t-test) 
 
 D_Serum <- D_Serum %>% 
   # heading for html file
@@ -307,7 +285,7 @@ D_Serum <- D_Serum %>%
 
 # Part 3: Analysis of Liver Data set 
 
-# Part 3: MISSINGNESS ANALYSIS 
+# Part 3.1: MISSINGNESS ANALYSIS 
 
 D_Liver <- D_Liver %>%
   mt_pre_zero_to_na() %>%
@@ -325,7 +303,7 @@ D_Liver <- D_Liver %>%
   {.}
 
 
-# Part 3: FILTERING MISSING VALUES  
+# Part 3.2: FILTERING MISSING VALUES  
 
 D_Liver <- D_Liver %>%
   mt_modify_filter_samples(filter = !is.na(Group)) %>%
@@ -336,7 +314,7 @@ D_Liver <- D_Liver %>%
   {.}
 
 
-# Part 3: PREPROCESSING: NORMALIZATION 
+# Part 3.3: PREPROCESSING: NORMALIZATION 
 
 D_Liver <- D_Liver %>%
   # heading for html file
@@ -363,7 +341,7 @@ D_Liver <- D_Liver %>%
   {.}
 
 
-# Part 3: GLOBAL STATISTICS 
+# Part 3.4: GLOBAL STATISTICS 
 
 assay(D_Liver)[ which(is.na(assay(D_Liver)), arr.ind = TRUE) ] = 0
 
@@ -375,15 +353,6 @@ D_Liver <- D_Liver %>%
   mt_plots_pca(scale_data = T, title = "Scaled PCA - Group", color= Group, exp_var_plot=T, size=2.5, ggadd= theme(panel.background = element_rect(fill = "white", colour = "grey50"))) %>%
   {.}
 
-# Part 3: GGM model 
-
-# D_Liver <- D_Liver %>%
-#   mt_stats_cormat_genenet(stat_name="pcor") %>%
-#   mt_plots_net(stat_name = "pcor") %>%
-#   #mt_plots_net(stat_name = "pcor", cor_filter = p.adj < 0.5, html_outfile="Network.html", height=800) %>%
-#   {.}
-
-# Part 3: STATISTICAL ANALYSIS, OUTCOME: Group, METHOD: LINEAR REGRESSION (t-test) 
 
 D_Liver <- D_Liver %>%
   # heading for html file
@@ -418,7 +387,7 @@ D_Liver <- D_Liver %>%
 
 # Part 4: Analysis of Microbiome Data set 
 
-# Part 4: MISSINGNESS ANALYSIS 
+# Part 4.1: MISSINGNESS ANALYSIS 
 
 D_Microbiome  <- D_Microbiome  %>%
   mt_pre_zero_to_na() %>%
@@ -436,7 +405,7 @@ D_Microbiome  <- D_Microbiome  %>%
   {.}
 
 
-# Part 4: FILTERING MISSING VALUES
+# Part 4.2: FILTERING MISSING VALUES
 
 D_Microbiome  <- D_Microbiome  %>%
   mt_modify_filter_samples(filter = !is.na(Group)) %>%
@@ -448,7 +417,7 @@ D_Microbiome  <- D_Microbiome  %>%
 
 # from 95 to 64 
 
-# Part 4: PREPROCESSING: NORMALIZATION
+# Part 4.3: PREPROCESSING: NORMALIZATION
 
 D_Microbiome  <- D_Microbiome  %>%
   # heading for html file
@@ -474,7 +443,7 @@ D_Microbiome  <- D_Microbiome  %>%
   
   {.}
 
-# Part 4: GLOBAL STATISTICS 
+# Part 4.4: GLOBAL STATISTICS 
 
 assay(D_Microbiome)[ which(is.na(assay(D_Microbiome)), arr.ind = TRUE) ] = 0
 
@@ -490,14 +459,6 @@ D_Microbiome  <- D_Microbiome  %>%
   mt_plots_pca(scale_data = T, title = "Scaled PCA - Group", pc1=4, pc2=5, color=Group,size=2.5, ggadd=scale_size_identity()) %>%
   {.}
 
-# part 4: GGM model 
-
-# D_Microbiome  <- D_Microbiome  %>%
-#   mt_stats_cormat_genenet(stat_name="pcor") %>%
-#   mt_plots_net(stat_name = "pcor") %>%
-#   {.}
-
-# part 4: STATISTICAL ANALYSIS, OUTCOME: Group, METHOD: LINEAR REGRESSION (t-test) 
 
 D_Microbiome  <- D_Microbiome  %>%
   # heading for html file
@@ -707,7 +668,7 @@ cmerge_SE <- function(D1, D2) {
 
 # ColData merge for Liver, Serum, and Fecal Matrices: 
 
-# Pre- merging steps:
+# 5.1 Pre- merging steps:
 
 rowData(D_Fecal)$HMDB[which(is.na(rowData(D_Fecal)$HMDB))]= "Non"
 rowData(D_Serum)$HMDB[which(is.na(rowData(D_Serum)$HMDB))]= "Non"
@@ -723,7 +684,7 @@ D_Fecal2= D_Fecal2[left_join(data.frame(id=shared),data.frame(id=rownames(D_Feca
 D_Liver2= D_Liver2[left_join(data.frame(id=shared),data.frame(id=rownames(D_Liver2),ix=seq(dim(D_Liver2)[1])))$ix,]
 D_Serum2= D_Serum2[left_join(data.frame(id=shared),data.frame(id=rownames(D_Serum2),ix=seq(dim(D_Serum2)[1])))$ix,]
 
-# Merge the three matrices: 
+# 5.2 Merge the three matrices: 
 
 D_merged = cmerge_SE(D_Fecal2, D_Serum2)
 D_merged2 = cmerge_SE(D_merged, D_Liver2)
@@ -786,15 +747,7 @@ D <- D %>%
   {.}
 
 
-# GGM Model: 
-
-# D <- D %>%
-#   mt_stats_cormat_genenet(stat_name="pcor") %>%
-#   mt_plots_net(stat_name = "pcor") %>%
-#   #mt_plots_net(stat_name = "pcor", cor_filter = p.adj < 0.5, html_outfile="Network.html", height=800) %>%
-#   {.}
-
-# H) STATISTICAL ANALYSIS, OUTCOME: Group, METHOD: LINEAR REGRESSION (t-test) 
+ 
 
 D1<- D
 D1 <- D1 %>%
@@ -892,7 +845,7 @@ write.table(y,file="correlationMOnly.tsv",sep="\t",row.names=FALSE)
 #   {.}
 
 
-# STATISTICAL ANALYSIS, OUTCOME: Group, METHOD: LINEAR REGRESSION (t-test) 
+
 D_rmerged2 <- D_rmerged2 %>%
   # heading for html file
   mt_reporting_heading(heading = "D_rmerged2 analysis", lvl = 2) %>%
@@ -915,13 +868,13 @@ D_rmerged2 <- D_rmerged2 %>%
                    feat_filter = p.adj < 0.05,
                    colour       = p.adj < 0.05) %>%
   # boxplot
-  mt_plots_box_scatter(stat_name          ="D_rmerged2 met",
-                       x                  = Group,
-                       fill               = Group,
-                       plot_type          = "box",
-                       feat_filter       = p.adj < 0.05,
-                       feat_sort         = p.value,
-                       annotation         = "{sprintf('P-value: %.2e', p.value)}\nPadj: {sprintf('%.2e', p.adj)}") %>%
+  # mt_plots_box_scatter(stat_name          ="D_rmerged2 met",
+  #                      x                  = Group,
+  #                      fill               = Group,
+  #                      plot_type          = "box",
+  #                      feat_filter       = p.adj < 0.05,
+  #                      feat_sort         = p.value,
+  #                      annotation         = "{sprintf('P-value: %.2e', p.value)}\nPadj: {sprintf('%.2e', p.adj)}") %>%
   {.}
 
 # creating additional variables to compare between the administered diet
@@ -1044,14 +997,14 @@ D_rmerged3 <- D_rmerged3 %>%
                    feat_filter = p.adj < 0.05,
                    colour       = p.adj < 0.05) %>%
   # boxplot
-  mt_plots_box_scatter(stat_name          ="D_rmerged3 met",
-                       x                  = Group,
-                       fill               = Group,
-                       plot_type          = "box",
-                       feat_filter       = p.adj < 0.05,
-                       feat_sort         = p.value,
-                       annotation         = "{sprintf('P-value: %.2e', p.value)}\nPadj: {sprintf('%.2e', p.adj)}") %>%
-  {.}
+  # mt_plots_box_scatter(stat_name          ="D_rmerged3 met",
+  #                      x                  = Group,
+  #                      fill               = Group,
+  #                      plot_type          = "box",
+  #                      feat_filter       = p.adj < 0.05,
+  #                      feat_sort         = p.value,
+  #                      annotation         = "{sprintf('P-value: %.2e', p.value)}\nPadj: {sprintf('%.2e', p.adj)}") %>%
+   {.}
 
 
 
