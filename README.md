@@ -1,4 +1,4 @@
-Data sets for this study came from a mice dietary study where 17 mice models were fed either a controlled diet (5 mice), 50% reduced protein diet (6 mice), or 50% reduced non-essential amino acid (6 mice) for two weeks. For each mouse in the three groups, three types of tissues were collected: i) four pellets of feces to examine changes 
+Data sets for this analysis came from a mice dietary study where 17 mice models were fed either a controlled diet (5 mice), 50% reduced protein diet (6 mice), or 50% reduced non-essential amino acid (6 mice) for two weeks. For each mouse in the three groups, three types of tissues were collected: i) four pellets of feces to examine changes 
 in the metabolome and microbiome, ii) blood samples via cardiac puncture to examine circulating metabolites level, and iii) liver samples. Fecal, serum, and liver samples were sent out for metabolomics profiling. Fecal samples were also sent out for sequencing. All data was processed and analyzed using the “Maplet” package in R.
 
 1.Dietary_study_analysis.R
