@@ -7,4 +7,4 @@ in the metabolome and microbiome, ii) blood samples via cardiac puncture to exam
 
 2.Boxplots_metabolites_microbiome.R
 
-  This will read the Read the SE object containing all the metabolites from Liver/Serum/Fecal matrices and the microbiome data. Generate pdf file containing the Log ion counts for all metabolites and Log abundance for microbial species.
+  This will read the Read the SE object containing all the metabolites from Liver/Serum/Fecal matrices and the microbiome data. Generate pdf file containing the Log ion counts for all metabolites and Log abundance for microbial species. A Bonferroni level of significance of 0.05 / (437 + 64) was used.
